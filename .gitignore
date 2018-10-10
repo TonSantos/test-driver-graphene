@@ -108,3 +108,9 @@ ENV/
 *.sqlite3
 *.sqlite
 *.db
+
+# cpython
+*.pyc
+*/*/*/__pycache__/
+*/*/__pycache__/
+*/__pycache__/
