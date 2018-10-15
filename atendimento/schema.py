@@ -55,6 +55,8 @@ class Query(object):
     profissional = graphene.Field(ProfissionalType, id=graphene.Int(), nome=graphene.String(), crm=graphene.String())
 
     all_pacientes     = graphene.List(PacienteType)
+    paciente = graphene.Field(PacienteType, id=graphene.Int(), nome=graphene.String(), cpf=graphene.String())
+
     all_atendimentos  = graphene.List(AtendimentoType)
 
     all_diagnosticos  = graphene.List(DiagnosticoType)
