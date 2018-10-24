@@ -23,6 +23,14 @@ Executar as depedências do requirements.txt
 pip install -r requirements.txt
 ```
 
+### Banco de Dados
+
+Para Criar tabelas
+
+```
+python manage.py migrate
+```
+
 
 ## Autor
 
