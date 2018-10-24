@@ -22,6 +22,9 @@ Executar as depedências do requirements.txt
 ```
 pip install -r requirements.txt
 ```
+### Modelo Hospitalar Simples
+
+![Alt text](Modelo_Hospitalar.png?raw=true "Hospital")
 
 ### Banco de Dados
 
