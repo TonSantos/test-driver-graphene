@@ -12,7 +12,6 @@ class PacienteType(DjangoObjectType):
     class Meta:
         model = Paciente
 
-
 class ProfissionalType(DjangoObjectType):
     class Meta:
         model = Profissional
@@ -20,7 +19,6 @@ class ProfissionalType(DjangoObjectType):
 class UnidadeType(DjangoObjectType):
     class Meta:
         model = Unidade
-
 
 class AtendimentoType(DjangoObjectType):
     class Meta:
@@ -47,7 +45,7 @@ class MedicamentoType(DjangoObjectType):
         model = Medicamento
 
 
-class Query(object):
+class Query(graphene.ObjectType):
     all_unidades = graphene.List(UnidadeType)
     unidade = graphene.Field(UnidadeType, id=graphene.Int(), nome=graphene.String(), endereco=graphene.String())
 
@@ -71,64 +69,34 @@ class Query(object):
         return Unidade.objects.all()
 
     def resolve_unidade(self, info, **kwargs):
-        id = kwargs.get('id')
-        nome = kwargs.get('nome')
-        endereco = kwargs.get('endereco')
-
-        if id is not None:
-            return Unidade.objects.get(pk=id)
-
-        if nome is not None:
-            return Unidade.objects.get(nome=nome)
-        
-        if endereco is not None:
-            return Unidade.objects.get(endereco=endereco)
-
+        for field in Unidade._meta.get_fields():
+            if kwargs.get(field.name) is not None:
+                return Unidade.objects.get(**{field.name:kwargs.get(field.name)}) 
         return None
 
     def resolve_all_profissionais(self, info, **kwargs):
         return Profissional.objects.all()
 
     def resolve_profissional(self, info, **kwargs):
-        id = kwargs.get('id')
-        nome = kwargs.get('nome')
-        crm = kwargs.get('crm')
-
-        if id is not None:
-            return Profissional.objects.get(pk=id)
-
-        if nome is not None:
-            return Profissional.objects.get(nome=nome)
-        
-        if crm is not None:
-            return Profissional.objects.get(crm=crm)
-
+        for field in Profissional._meta.get_fields():
+            if kwargs.get(field.name) is not None:
+                return Profissional.objects.get(**{field.name:kwargs.get(field.name)}) 
         return None
 
     def resolve_all_pacientes(self, info, **kwargs):
         return Paciente.objects.all()
 
+    def resolve_paciente(self, info, **kwargs):
+        for field in Paciente._meta.get_fields():
+            if kwargs.get(field.name) is not None:
+                return Paciente.objects.get(**{field.name:kwargs.get(field.name)}) 
+        return None
+
     def resolve_all_atendimentos(self, info, **kwargs):
         return Atendimento.objects.all()
 
     def resolve_all_diagnosticos(self, info, **kwargs):
-        descricao = kwargs.get('descricao')
-        if descricao is not None:
-            return Diagnostico.objects.filter(descricao__contains=descricao)
-
         return Diagnostico.objects.all()
-
-    def resolve_diagnostico(self, info, **kwargs):
-        id = kwargs.get('id')
-        cid10 = kwargs.get('cid10')
-
-        if id is not None:
-            return Diagnostico.objects.get(pk=id)
-
-        if cid10 is not None:
-            return Diagnostico.objects.get(cid10=cid10)
-
-        return None
 
     def resolve_all_tratamentos(self, info, **kwargs):
         return Tratamento.objects.all()
@@ -136,7 +104,7 @@ class Query(object):
     def resolve_all_exames(self, info, **kwargs):
         return Exame.objects.all()
 
-    def resolve_all_procedimento(self, info, **kwargs):
+    def resolve_all_procedimentos(self, info, **kwargs):
         return Procedimento.objects.all()
 
     def resolve_all_medicamentos(self, info, **kwargs):
