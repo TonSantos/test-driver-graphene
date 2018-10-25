@@ -46,44 +46,26 @@ class MedicamentoType(DjangoObjectType):
 
 
 class Query(graphene.ObjectType):
-    all_unidades = graphene.List(UnidadeType)
-    unidade = graphene.Field(UnidadeType, id=graphene.Int(), nome=graphene.String(), endereco=graphene.String())
-
-    all_profissionais = graphene.List(ProfissionalType)
-    profissional = graphene.Field(ProfissionalType, id=graphene.Int(), nome=graphene.String(), crm=graphene.String())
-
-    all_pacientes     = graphene.List(PacienteType)
+    pacientes = graphene.List(PacienteType)
     paciente = graphene.Field(PacienteType, id=graphene.Int(), nome=graphene.String(), cpf=graphene.String())
 
-    all_atendimentos  = graphene.List(AtendimentoType)
+    unidades = graphene.List(UnidadeType)
+    unidade = graphene.Field(UnidadeType, id=graphene.Int(), nome=graphene.String(), endereco=graphene.String())
 
-    all_diagnosticos  = graphene.List(DiagnosticoType)
+    profissionais = graphene.List(ProfissionalType)
+    profissional = graphene.Field(ProfissionalType, id=graphene.Int(), nome=graphene.String(), crm=graphene.String())
+
+    atendimentos  = graphene.List(AtendimentoType)
+
+    diagnosticos  = graphene.List(DiagnosticoType)
     diagnostico = graphene.Field(DiagnosticoType, id=graphene.Int(), cid10=graphene.String())
 
-    all_tratamentos   = graphene.List(TratamentoType)
-    all_exames        = graphene.List(ExameType)
-    all_procedimentos = graphene.List(ProcedimentoType)
-    all_medicamentos  = graphene.List(MedicamentoType)
+    tratamentos   = graphene.List(TratamentoType)
+    exames        = graphene.List(ExameType)
+    procedimentos = graphene.List(ProcedimentoType)
+    medicamentos  = graphene.List(MedicamentoType)
 
-    def resolve_all_unidades(self, info, **kwargs):
-        return Unidade.objects.all()
-
-    def resolve_unidade(self, info, **kwargs):
-        for field in Unidade._meta.get_fields():
-            if kwargs.get(field.name) is not None:
-                return Unidade.objects.get(**{field.name:kwargs.get(field.name)}) 
-        return None
-
-    def resolve_all_profissionais(self, info, **kwargs):
-        return Profissional.objects.all()
-
-    def resolve_profissional(self, info, **kwargs):
-        for field in Profissional._meta.get_fields():
-            if kwargs.get(field.name) is not None:
-                return Profissional.objects.get(**{field.name:kwargs.get(field.name)}) 
-        return None
-
-    def resolve_all_pacientes(self, info, **kwargs):
+    def resolve_pacientes(self, info, **kwargs):
         return Paciente.objects.all()
 
     def resolve_paciente(self, info, **kwargs):
@@ -92,32 +74,79 @@ class Query(graphene.ObjectType):
                 return Paciente.objects.get(**{field.name:kwargs.get(field.name)}) 
         return None
 
-    def resolve_all_atendimentos(self, info, **kwargs):
+    def resolve_unidades(self, info, **kwargs):
+        return Unidade.objects.all()
+
+    def resolve_unidade(self, info, **kwargs):
+        for field in Unidade._meta.get_fields():
+            if kwargs.get(field.name) is not None:
+                return Unidade.objects.get(**{field.name:kwargs.get(field.name)}) 
+        return None
+
+    def resolve_profissionais(self, info, **kwargs):
+        return Profissional.objects.all()
+
+    def resolve_profissional(self, info, **kwargs):
+        for field in Profissional._meta.get_fields():
+            if kwargs.get(field.name) is not None:
+                return Profissional.objects.get(**{field.name:kwargs.get(field.name)}) 
+        return None
+
+    def resolve_atendimentos(self, info, **kwargs):
         return Atendimento.objects.all()
 
-    def resolve_all_diagnosticos(self, info, **kwargs):
+    def resolve_diagnosticos(self, info, **kwargs):
         return Diagnostico.objects.all()
 
-    def resolve_all_tratamentos(self, info, **kwargs):
+    def resolve_tratamentos(self, info, **kwargs):
         return Tratamento.objects.all()
 
-    def resolve_all_exames(self, info, **kwargs):
+    def resolve_exames(self, info, **kwargs):
         return Exame.objects.all()
 
-    def resolve_all_procedimentos(self, info, **kwargs):
+    def resolve_procedimentos(self, info, **kwargs):
         return Procedimento.objects.all()
 
-    def resolve_all_medicamentos(self, info, **kwargs):
+    def resolve_medicamentos(self, info, **kwargs):
         return Medicamento.objects.all()
 
-    def resolve_all_atendimentos_paciente(self, info, **kwargs):
+    def resolve_atendimentos_paciente(self, info, **kwargs):
         return Atendimento.objects.select_related('paciente').all()
 
-    def resolve_all_atendimentos_profissional(self, info, **kwargs):
+    def resolve_atendimentos_profissional(self, info, **kwargs):
         return Atendimento.objects.select_related('profissional').all()
 
-    def resolve_all_atendimentos_unidade(self, info, **kwargs):
+    def resolve_atendimentos_unidade(self, info, **kwargs):
         return Atendimento.objects.select_related('unidade').all()
 
-    def resolve_all_diagnosticos_atendimento(self, info, **kwargs):
+    def resolve_diagnosticos_atendimento(self, info, **kwargs):
         return Diagnostico.objects.select_related('atendimento').all()
+
+
+# Mutations
+#1
+class CreatePaciente(graphene.Mutation):
+    id = graphene.Int()
+    nome = graphene.String()
+    cpf = graphene.String()
+
+    #2
+    class Arguments:
+        nome = graphene.String()
+        cpf = graphene.String()
+
+    #3
+    def mutate(self, nome, cpf):
+        paciente = Paciente(nome=nome, cpf=cpf)
+        paciente.save()
+
+        return CreatePaciente(
+            id=paciente.id,
+            nome=paciente.nome,
+            cpf=paciente.cpf,
+        )
+
+
+#4
+class Mutation(graphene.ObjectType):
+    create_paciente = CreatePaciente.Field()
