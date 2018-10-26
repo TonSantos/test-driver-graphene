@@ -1,3 +1,4 @@
+from django.db.models import Q
 import graphene
 
 from graphene_django.types import DjangoObjectType
@@ -46,10 +47,10 @@ class MedicamentoType(DjangoObjectType):
 
 
 class Query(graphene.ObjectType):
-    pacientes = graphene.List(PacienteType)
+    pacientes = graphene.List(PacienteType, search=graphene.String())
     paciente = graphene.Field(PacienteType, id=graphene.Int(), nome=graphene.String(), cpf=graphene.String())
 
-    unidades = graphene.List(UnidadeType)
+    unidades = graphene.List(UnidadeType, search=graphene.String())
     unidade = graphene.Field(UnidadeType, id=graphene.Int(), nome=graphene.String(), endereco=graphene.String())
 
     profissionais = graphene.List(ProfissionalType)
@@ -65,7 +66,15 @@ class Query(graphene.ObjectType):
     procedimentos = graphene.List(ProcedimentoType)
     medicamentos  = graphene.List(MedicamentoType)
 
-    def resolve_pacientes(self, info, **kwargs):
+    def resolve_pacientes(self, info, search=None, **kwargs):
+
+        if search:
+            filter = (
+                Q(nome__icontains=search) | 
+                Q(cpf__icontains=search)
+            )
+            return Paciente.objects.filter(filter)
+
         return Paciente.objects.all()
 
     def resolve_paciente(self, info, **kwargs):
@@ -74,7 +83,14 @@ class Query(graphene.ObjectType):
                 return Paciente.objects.get(**{field.name:kwargs.get(field.name)}) 
         return None
 
-    def resolve_unidades(self, info, **kwargs):
+    def resolve_unidades(self, info, search=None, **kwargs):
+        if search:
+            filter = (
+                Q(nome__icontains=search) | 
+                Q(endereco__icontains=search)
+            )
+            return Unidade.objects.filter(filter)
+
         return Unidade.objects.all()
 
     def resolve_unidade(self, info, **kwargs):
