@@ -37,7 +37,7 @@ python manage.py migrate
 
 ## Autor
 
-* **Glairton Santons (Ton Santos)** - *Initial work* - [IntMed](https://github.com/IntMed)
+* **Glairton Santons (Ton Santos)** - [IntMed](https://github.com/IntMed)
 
 
 ## Licença

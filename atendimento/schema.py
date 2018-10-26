@@ -53,7 +53,7 @@ class Query(graphene.ObjectType):
     unidades = graphene.List(UnidadeType, search=graphene.String())
     unidade = graphene.Field(UnidadeType, id=graphene.Int(), nome=graphene.String(), endereco=graphene.String())
 
-    profissionais = graphene.List(ProfissionalType)
+    profissionais = graphene.List(ProfissionalType, search=graphene.String())
     profissional = graphene.Field(ProfissionalType, id=graphene.Int(), nome=graphene.String(), crm=graphene.String())
 
     atendimentos  = graphene.List(AtendimentoType)
@@ -99,7 +99,14 @@ class Query(graphene.ObjectType):
                 return Unidade.objects.get(**{field.name:kwargs.get(field.name)}) 
         return None
 
-    def resolve_profissionais(self, info, **kwargs):
+    def resolve_profissionais(self, info, search=None, **kwargs):
+        if search:
+                filter = (
+                    Q(nome__icontains=search) | 
+                    Q(crm__icontains=search)
+                )
+                return Profissional.objects.filter(filter)
+
         return Profissional.objects.all()
 
     def resolve_profissional(self, info, **kwargs):
